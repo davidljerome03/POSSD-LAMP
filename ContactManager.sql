@@ -37,6 +37,8 @@ CREATE TABLE `Contacts` (
   `Phone` varchar(50) DEFAULT NULL,
   `Email` varchar(100) DEFAULT NULL,
   `UserID` int NOT NULL,
+  `DateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `DateUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ID`),
   KEY `UserID` (`UserID`),
   CONSTRAINT `Contacts_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `Users` (`ID`)
@@ -49,7 +51,7 @@ CREATE TABLE `Contacts` (
 
 LOCK TABLES `Contacts` WRITE;
 /*!40000 ALTER TABLE `Contacts` DISABLE KEYS */;
-INSERT INTO `Contacts` VALUES (1,'Bob','Johnson','407-555-1111','bob@email.com',1),(2,'Sarah','Williams','407-555-2222','sarah@email.com',1),(3,'Mike','Brown','321-555-3333','mike@email.com',2);
+INSERT INTO `Contacts` VALUES (1,'Bob','Johnson','407-555-1111','bob@email.com',1,'2026-09-10 19:04:05','2026-09-10 19:04:05'),(2,'Sarah','Williams','407-555-2222','sarah@email.com',1,'2026-09-10 19:04:05','2026-09-10 19:04:05'),(3,'Mike','Brown','321-555-3333','mike@email.com',2,'2026-09-10 19:04:05','2026-09-10 19:04:05');
 /*!40000 ALTER TABLE `Contacts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -66,6 +68,10 @@ CREATE TABLE `Users` (
   `LastName` varchar(50) NOT NULL,
   `Login` varchar(50) NOT NULL,
   `Password` varchar(255) NOT NULL,
+  `DateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `DateUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `Role` enum('Admin','User') NOT NULL DEFAULT 'User',
+  `IsDisabled` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Login` (`Login`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -77,7 +83,7 @@ CREATE TABLE `Users` (
 
 LOCK TABLES `Users` WRITE;
 /*!40000 ALTER TABLE `Users` DISABLE KEYS */;
-INSERT INTO `Users` VALUES (1,'John','Smith','jsmith','password123'),(2,'Jane','Doe','jdoe','test123');
+INSERT INTO `Users` VALUES (1,'John','Smith','jsmith','password123','2026-09-10 19:03:50','2026-09-15 21:19:46','Admin',0),(2,'Jane','Doe','jdoe','test123','2026-09-10 19:03:50','2026-09-15 21:20:16','User',0);
 /*!40000 ALTER TABLE `Users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -90,4 +96,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-08 18:22:43
+-- Dump completed on 2026-09-15 21:24:45
