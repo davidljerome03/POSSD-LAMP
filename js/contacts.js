@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        contacts.forEach(contact => {
+        contacts.forEach((contact, index) => {
             const card = document.createElement('div');
             card.className = 'contact-card';
             
@@ -65,13 +65,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = escapeHTML(`${contact.FirstName} ${contact.LastName}`);
             const phone = escapeHTML(contact.Phone || 'N/A');
             const email = escapeHTML(contact.Email || 'N/A');
+            const initials = escapeHTML(`${contact.FirstName.charAt(0)}${contact.LastName.charAt(0)}`.toUpperCase());
             
             card.innerHTML = `
-                <div class="contact-header">${name}</div>
-                <div class="contact-detail">📞 ${phone}</div>
-                <div class="contact-detail">✉️ ${email}</div>
+                <div class="contact-header">
+                    <div class="contact-avatar">${initials}</div>
+                    <span>${name}</span>
+                </div>
+                <div class="contact-detail">
+                    <svg style="width:18px;height:18px;stroke-width:2.5px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                    ${phone}
+                </div>
+                <div class="contact-detail">
+                    <svg style="width:18px;height:18px;stroke-width:2.5px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    ${email}
+                </div>
                 <div class="contact-actions">
-                    <button class="btn edit-btn" data-id="${contact.ID}">Edit</button>
+                    <button class="btn edit-btn" style="background:var(--card-bg); color:var(--text-main);" data-id="${contact.ID}">Edit</button>
                     <button class="btn btn-danger delete-btn" data-id="${contact.ID}">Delete</button>
                 </div>
             `;
