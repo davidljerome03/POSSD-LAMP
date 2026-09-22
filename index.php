@@ -42,15 +42,17 @@ if ($method === 'POST') {
             respond(400, ['error' => "Login, password, first name and last name are required"]);
         }
 
-        // If the user entered a login that already exists, don't let them create their account
-        $exstmt = $db->prepare("SELECT COUNT(*) FROM Users WHERE Login=:login");
-        $exstmt->execute([':login' => $login]);
-        $loginCount = $exstmt->fetch();
-        // If the user provided all the information, create their account
-        //$user = $astmt->fetch();
-        if($loginCount["COUNT(*)"] < 1) {
+	    // If the user entered a login that already exists, don't let them create their account
+	    $loginCount = userExists($login, $db);
+
+        if($loginCount < 1) {
+            // Hash & salt the user's password
+            $password = password_hash($password, PASSWORD_DEFAULT);
+
+            // If the user provided all the information, create their account
             $astmt = $db->prepare("INSERT INTO `Users` (`FirstName`, `LastName`, `Login`, `Password`) VALUES (:first_name, :last_name, :login, :password)");
             $astmt->execute([':first_name' => $firstName, ':last_name' => $lastName, ':login' => $login, ':password' => $password]);
+
             respond(201, [
                 "login" => $login,
                 "message" => "User successfully created"
@@ -74,18 +76,30 @@ if ($method === 'POST') {
             respond(400, ['error' => 'Login and password are required']);
         }
 
-        $stmt = $db->prepare('SELECT ID, firstName, lastName FROM Users WHERE Login = :login AND Password = :pass LIMIT 1');
-        $stmt->execute([':login' => $login, ':pass' => $password]);
+        $stmt = $db->prepare('SELECT ID, firstName, lastName, Password FROM Users WHERE Login = :login');
+        $stmt->execute([':login' => $login]);
         $user = $stmt->fetch();
 
         if ($user) {
-            logInResponse($user);
+            // If the password was correct, log the user in
+            if(password_verify($password, $user["Password"])) {
+                logInResponse($user);
+            } else {
+                respond(401, [
+                    id => 0,
+                    'firstName' => '',
+                    'lastName'  => '',
+                    'error'     => 'Incorrect Password'
+                ]);
+            }
+
         } else {
             respond(401, [
                 'id'        => 0,
                 'firstName' => '',
                 'lastName'  => '',
                 'error'     => 'No Records Found'
+
             ]);
         }
     }
