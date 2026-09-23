@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Manager - Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/theme.js"></script>
+    <style>
+        /* Admin specific styles */
+        .admin-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-hard);
+        }
+        
+        .users-table th, .users-table td {
+            padding: 1rem;
+            border: var(--border-thin);
+            text-align: left;
+        }
+        
+        .users-table th {
+            background: var(--bg-color);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        
+        .badge {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border: var(--border-thin);
+            box-shadow: 2px 2px 0px #000;
+        }
+        [data-theme="dark"] .badge {
+            box-shadow: 2px 2px 0px #fff;
+        }
+        
+        .badge-admin { background: var(--accent-color); color: #000; }
+        .badge-user { background: var(--bg-color); }
+        .badge-disabled { background: var(--danger-color); color: #fff; }
+        
+        .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .admin-actions button {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="user-info">
+            Admin Panel: <span id="welcomeName">Administrator</span>
+        </div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button id="themeToggleBtn" class="theme-toggle" aria-label="Toggle Dark Mode">🌙</button>
+            <button class="btn" id="logoutBtn" style="padding: 0.5rem 1rem;">Logout</button>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <div class="admin-nav">
+            <button class="btn" id="showUsersBtn" style="flex: 1;">Manage Users</button>
+            <button class="btn" id="createAdminBtn" style="flex: 1; background: var(--bg-color); color: var(--text-main);">Create Admin Account</button>
+        </div>
+
+        <!-- Users Management View -->
+        <section id="usersSection">
+            <div class="toolbar">
+                <input type="text" id="adminSearchInput" class="form-control search-bar" placeholder="Search users by name or login...">
+            </div>
+            <div id="adminError" class="hidden" style="color: var(--danger-color); font-weight: 700; margin-bottom: 1rem;"></div>
+            
+            <div style="overflow-x: auto;">
+                <table class="users-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Login</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        
+        <!-- Create Admin Form View (Hidden by default) -->
+        <section id="createAdminSection" class="hidden">
+            <div class="auth-card" style="margin: 0 auto; max-width: 500px;">
+                <h2>New Admin</h2>
+                <div id="createAdminError" class="hidden" style="color: var(--danger-color); font-weight: 700; margin-bottom: 1rem; text-align: center;"></div>
+                <form id="createAdminForm">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="newAdminFirst" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="newAdminLast" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Login Username</label>
+                        <input type="text" id="newAdminLogin" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="newAdminPassword" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn">Create Administrator</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Reset Password</h2>
+                <span class="close-btn" id="closePasswordModal">&times;</span>
+            </div>
+            <div id="passwordModalError" class="hidden" style="color: var(--danger-color); margin-bottom: 1rem; font-weight: 700; text-align: center;"></div>
+            <form id="passwordForm">
+                <input type="hidden" id="resetUserId">
+                <p style="margin-bottom: 1rem; font-weight: 600;">Resetting password for: <span id="resetUserLogin"></span></p>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" id="newPasswordInput" class="form-control" required>
+                </div>
+                <button type="submit" class="btn">Update Password</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- User's Contacts Modal (Admin can see their contacts) -->
+    <div id="userContactsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px; width: 90%;">
+            <div class="modal-header">
+                <h2>Contacts for <span id="contactsUserLogin"></span></h2>
+                <span class="close-btn" id="closeContactsModal">&times;</span>
+            </div>
+            <div style="overflow-y: auto; max-height: 60vh;">
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userContactsTbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/mockApi.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

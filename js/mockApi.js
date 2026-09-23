@@ -40,7 +40,10 @@ const MockAPI = {
         const user = users.find(u => u.Login === login && u.Password === password);
         
         if (user) {
-            return { error: "", id: user.ID, firstName: user.FirstName, lastName: user.LastName };
+            if (user.IsDisabled) {
+                return { error: "Account disabled. Please contact administrator.", id: 0 };
+            }
+            return { error: "", id: user.ID, firstName: user.FirstName, lastName: user.LastName, role: user.Role };
         } else {
             return { error: "No Records Found", id: 0, firstName: "", lastName: "" };
         }
@@ -146,5 +149,84 @@ const MockAPI = {
         
         localStorage.setItem(DB_CONTACTS_KEY, JSON.stringify(contacts));
         return { error: "", message: "Contact deleted" };
+    },
+
+    // ---- ADMIN ----
+
+    getAllUsers: async (adminId, search = "") => {
+        await delay(300);
+        const users = JSON.parse(localStorage.getItem(DB_USERS_KEY));
+        
+        // Very basic mock validation
+        const admin = users.find(u => u.ID === adminId && u.Role === 'Admin');
+        if (!admin) return { error: "Unauthorized" };
+
+        let results = users;
+        if (search) {
+            const s = search.toLowerCase();
+            results = results.filter(u => 
+                u.FirstName.toLowerCase().includes(s) || 
+                u.LastName.toLowerCase().includes(s) ||
+                u.Login.toLowerCase().includes(s)
+            );
+        }
+        // Exclude passwords
+        results = results.map(u => ({ ...u, Password: undefined }));
+        return { error: "", results };
+    },
+
+    toggleUserStatus: async (adminId, targetUserId) => {
+        await delay(300);
+        const users = JSON.parse(localStorage.getItem(DB_USERS_KEY));
+        const admin = users.find(u => u.ID === adminId && u.Role === 'Admin');
+        if (!admin) return { error: "Unauthorized" };
+
+        const target = users.find(u => u.ID === targetUserId);
+        if (!target) return { error: "User not found" };
+
+        target.IsDisabled = target.IsDisabled ? 0 : 1;
+        localStorage.setItem(DB_USERS_KEY, JSON.stringify(users));
+        return { error: "", message: "User status updated", isDisabled: target.IsDisabled };
+    },
+
+    resetUserPassword: async (adminId, targetUserId, newPassword) => {
+        await delay(300);
+        const users = JSON.parse(localStorage.getItem(DB_USERS_KEY));
+        const admin = users.find(u => u.ID === adminId && u.Role === 'Admin');
+        if (!admin) return { error: "Unauthorized" };
+
+        const target = users.find(u => u.ID === targetUserId);
+        if (!target) return { error: "User not found" };
+
+        target.Password = newPassword;
+        localStorage.setItem(DB_USERS_KEY, JSON.stringify(users));
+        return { error: "", message: "Password updated successfully" };
+    },
+
+    createAdmin: async (adminId, firstName, lastName, login, password) => {
+        await delay(300);
+        const users = JSON.parse(localStorage.getItem(DB_USERS_KEY));
+        const admin = users.find(u => u.ID === adminId && u.Role === 'Admin');
+        if (!admin) return { error: "Unauthorized" };
+
+        if (users.find(u => u.Login === login)) {
+            return { error: "The requested Login is already in use" };
+        }
+        
+        const newUser = {
+            ID: users.length > 0 ? Math.max(...users.map(u => u.ID)) + 1 : 1,
+            FirstName: firstName,
+            LastName: lastName,
+            Login: login,
+            Password: password,
+            DateCreated: new Date().toISOString(),
+            Role: 'Admin',
+            IsDisabled: 0
+        };
+        
+        users.push(newUser);
+        localStorage.setItem(DB_USERS_KEY, JSON.stringify(users));
+        
+        return { error: "", message: "Admin successfully created" };
     }
 };

@@ -1,9 +1,13 @@
 // login.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // If already logged in, redirect to contacts
+    // If already logged in, redirect to contacts or admin
     if (localStorage.getItem('currentUserId')) {
-        window.location.href = 'contacts.html';
+        if (localStorage.getItem('currentUserRole') === 'Admin') {
+            window.location.href = 'admin.html';
+        } else {
+            window.location.href = 'contacts.html';
+        }
     }
 
     const loginCard = document.getElementById('loginCard');
@@ -49,8 +53,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('currentUserId', response.id);
                 localStorage.setItem('currentUserFirstName', response.firstName);
                 localStorage.setItem('currentUserLastName', response.lastName);
+                localStorage.setItem('currentUserRole', response.role || 'User');
                 
-                window.location.href = 'contacts.html';
+                if (response.role === 'Admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'contacts.html';
+                }
             } else {
                 loginError.textContent = response.error;
                 loginError.classList.remove('hidden');
