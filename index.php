@@ -76,7 +76,7 @@ if ($method === 'POST') {
             respond(400, ['error' => 'Login and password are required']);
         }
 
-        $stmt = $db->prepare('SELECT ID, firstName, lastName, Password FROM Users WHERE Login = :login');
+        $stmt = $db->prepare('SELECT ID, firstName, lastName, Password, Role, IsDisabled FROM Users WHERE Login = :login');
         $stmt->execute([':login' => $login]);
         $user = $stmt->fetch();
 
@@ -86,7 +86,7 @@ if ($method === 'POST') {
                 logInResponse($user);
             } else {
                 respond(401, [
-                    id => 0,
+                    'id'        => 0,
                     'firstName' => '',
                     'lastName'  => '',
                     'error'     => 'Incorrect Password'
