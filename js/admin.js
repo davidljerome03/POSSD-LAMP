@@ -1,5 +1,7 @@
 // admin.js
 
+const ADMIN_API = 'admin_api.php';
+
 document.addEventListener('DOMContentLoaded', () => {
     const currentUserId = parseInt(localStorage.getItem('currentUserId'));
     const currentUserRole = localStorage.getItem('currentUserRole');
@@ -61,7 +63,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // -- LOAD USERS --
     const loadUsers = async (search = '') => {
         try {
-            const response = await MockAPI.getAllUsers(currentUserId, search);
+            let url = ADMIN_API + '?action=users';
+            if (search) url += '&q=' + encodeURIComponent(search);
+            
+            const req = await fetch(url, { headers: { 'Authorization': currentUserId } });
+            const response = await req.json();
+            
             if (response.error) {
                 showError(response.error);
                 return;
@@ -83,9 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             
             const roleBadge = user.Role === 'Admin' ? 'badge-admin' : 'badge-user';
-            const statusBadge = user.IsDisabled ? '<span class="badge badge-disabled">Disabled</span>' : '<span class="badge" style="background:#ccff00;color:#000;">Active</span>';
-            const actionBtnText = user.IsDisabled ? 'Enable' : 'Disable';
-            const actionBtnColor = user.IsDisabled ? 'var(--card-bg)' : 'var(--danger-color)';
+            const isDisabled = parseInt(user.IsDisabled) === 1;
+            const statusBadge = isDisabled ? '<span class="badge badge-disabled">Disabled</span>' : '<span class="badge" style="background:#ccff00;color:#000;">Active</span>';
+            const actionBtnText = isDisabled ? 'Enable' : 'Disable';
+            const actionBtnColor = isDisabled ? 'var(--card-bg)' : 'var(--danger-color)';
             
             tr.innerHTML = `
                 <td>${user.ID}</td>
@@ -96,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="admin-actions">
                     <button class="btn contacts-btn" style="background:var(--card-bg);color:var(--text-main);" data-id="${user.ID}" data-login="${escapeHTML(user.Login)}">Contacts</button>
                     <button class="btn pass-btn" style="background:var(--card-bg);color:var(--text-main);" data-id="${user.ID}" data-login="${escapeHTML(user.Login)}">Pass</button>
-                    <button class="btn toggle-btn" style="background:${actionBtnColor};color:${user.IsDisabled ? 'var(--text-main)' : '#fff'};" data-id="${user.ID}">${actionBtnText}</button>
+                    <button class="btn toggle-btn" style="background:${actionBtnColor};color:${isDisabled ? 'var(--text-main)' : '#fff'};" data-id="${user.ID}">${actionBtnText}</button>
                 </td>
             `;
             usersTbody.appendChild(tr);
@@ -110,7 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     showError("You cannot disable yourself!");
                     return;
                 }
-                const res = await MockAPI.toggleUserStatus(currentUserId, targetId);
+                
+                const req = await fetch(ADMIN_API + '?action=toggle_status', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': currentUserId },
+                    body: JSON.stringify({ id: targetId })
+                });
+                const res = await req.json();
+                
                 if (!res.error) loadUsers(adminSearchInput.value);
                 else showError(res.error);
             });
@@ -133,7 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('contactsUserLogin').textContent = login;
                 
                 // Fetch their contacts
-                const res = await MockAPI.getContacts(targetId);
+                const req = await fetch(ADMIN_API + '?action=user_contacts&id=' + targetId, {
+                    headers: { 'Authorization': currentUserId }
+                });
+                const res = await req.json();
+                
                 userContactsTbody.innerHTML = '';
                 
                 if (res.results && res.results.length > 0) {
@@ -173,7 +192,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = passwordForm.querySelector('button');
         btn.disabled = true;
         
-        const res = await MockAPI.resetUserPassword(currentUserId, targetId, newPass);
+        const req = await fetch(ADMIN_API + '?action=reset_password', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': currentUserId },
+            body: JSON.stringify({ id: targetId, password: newPass })
+        });
+        const res = await req.json();
+        
         if (!res.error) {
             passwordModal.classList.remove('active');
             passwordForm.reset();
@@ -194,7 +219,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const btn = createAdminForm.querySelector('button');
         
         btn.disabled = true;
-        const res = await MockAPI.createAdmin(currentUserId, first, last, login, pass);
+        
+        const req = await fetch(ADMIN_API + '?action=create_admin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': currentUserId },
+            body: JSON.stringify({ first_name: first, last_name: last, login: login, password: pass })
+        });
+        const res = await req.json();
         
         if (!res.error) {
             createAdminForm.reset();

@@ -1,5 +1,7 @@
 // contacts.js
 
+const API_URL = 'index.php';
+
 document.addEventListener('DOMContentLoaded', () => {
     const currentUserId = parseInt(localStorage.getItem('currentUserId'));
     
@@ -35,7 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Contacts
     const loadContacts = async (search = '') => {
         try {
-            const response = await MockAPI.getContacts(currentUserId, search);
+            let url = API_URL + '?userId=' + currentUserId;
+            if (search) {
+                url += '&q=' + encodeURIComponent(search);
+            }
+            
+            const req = await fetch(url, { method: 'GET' });
+            const response = await req.json();
             
             if (response.error) {
                 showError(response.error);
@@ -158,12 +166,22 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
         
         try {
-            let response;
+            let req;
             if (id) {
-                response = await MockAPI.updateContact(currentUserId, parseInt(id), firstName, lastName, phone, email);
+                req = await fetch(API_URL + '?id=' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUserId, firstName, lastName, phone, email })
+                });
             } else {
-                response = await MockAPI.addContact(currentUserId, firstName, lastName, phone, email);
+                req = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUserId, firstName, lastName, phone, email })
+                });
             }
+            
+            const response = await req.json();
 
             if (response.error) {
                 modalError.textContent = response.error;
@@ -191,7 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         confirmDeleteBtn.disabled = true;
         try {
-            const response = await MockAPI.deleteContact(currentUserId, contactToDeleteId);
+            const req = await fetch(API_URL + '?id=' + contactToDeleteId, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: currentUserId })
+            });
+            const response = await req.json();
+            
             if (!response.error) {
                 deleteModal.classList.remove('active');
                 loadContacts(searchInput.value);

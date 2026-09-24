@@ -19,7 +19,7 @@ function getDB() {
 
         $host    = getenv('DB_HOST')     ?: 'localhost';
         $dbname  = getenv('DB_NAME')     ?: 'ContactManager';
-        $user    = getenv('DB_USER')     ?: 'ColorsAppUser';
+        $user    = getenv('DB_USER')     ?: 'root';
         $pass    = getenv('DB_PASSWORD') !== false 
                      ? getenv('DB_PASSWORD') 
                      : (getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');

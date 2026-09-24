@@ -1,5 +1,7 @@
 // login.js
 
+const API_URL = 'index.php';
+
 document.addEventListener('DOMContentLoaded', () => {
     // If already logged in, redirect to contacts or admin
     if (localStorage.getItem('currentUserId')) {
@@ -47,7 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = 'Logging in...';
         
         try {
-            const response = await MockAPI.login(login, pass);
+            const req = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ login: login, password: pass })
+            });
+            const response = await req.json();
+            
             if (response.id > 0) {
                 // Save session
                 localStorage.setItem('currentUserId', response.id);
@@ -61,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = 'contacts.html';
                 }
             } else {
-                loginError.textContent = response.error;
+                loginError.textContent = response.error || 'Login failed';
                 loginError.classList.remove('hidden');
             }
         } catch (err) {
@@ -87,10 +95,20 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.textContent = 'Registering...';
         
         try {
-            const response = await MockAPI.register(first, last, login, pass);
-            if (!response.error) {
-                // Automatically log them in or ask them to log in
-                // Let's just switch back to the login screen and pre-fill the username
+            const req = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ first_name: first, last_name: last, login: login, password: pass })
+            });
+            
+            let response;
+            try {
+                response = await req.json();
+            } catch(e) {
+                response = { error: "Failed to parse API response" };
+            }
+            
+            if (req.ok && !response.error) {
                 registerCard.classList.add('hidden');
                 loginCard.classList.remove('hidden');
                 document.getElementById('loginUsername').value = login;
@@ -99,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginError.style.color = 'var(--success-color)';
                 loginError.classList.remove('hidden');
             } else {
-                registerError.textContent = response.error;
+                registerError.textContent = response.error || 'Registration failed';
                 registerError.classList.remove('hidden');
             }
         } catch (err) {

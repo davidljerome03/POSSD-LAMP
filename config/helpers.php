@@ -105,10 +105,14 @@ function respond($statusCode, $data) {
  * log in and new users to create an account and recieve the same response
 */
 function logInResponse($user) {
+    if (isset($user['IsDisabled']) && (int)$user['IsDisabled'] === 1) {
+        respond(403, ['error' => 'Account disabled. Please contact administrator.']);
+    }
     respond(200, [
-        'id'=> (int) $user['ID'],
-        'firstName' => $user['firstName'],
-        'lastName'  => $user['lastName'],
+        'id'        => (int) $user['ID'],
+        'firstName' => $user['FirstName'] ?? $user['firstName'] ?? '',
+        'lastName'  => $user['LastName'] ?? $user['lastName'] ?? '',
+        'role'      => $user['Role'] ?? 'User',
         'token'     => (string) $user['ID'],
         'error'     => ''
     ]);
