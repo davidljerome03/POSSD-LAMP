@@ -159,7 +159,7 @@ if ($search !== null && $search !== '') {
         'results' => $rows,
         'error' => ''
     ]);
-}
+
         }
 
         // List all contacts
