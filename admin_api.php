@@ -1,4 +1,5 @@
 <?php
+// AI-assisted: Helped modify endpoints to handle additional changes needed to meet frontend requirements
 // admin_api.php - Admin Endpoints
 require_once __DIR__ . '/config/db.php';
 require_once __DIR__ . '/config/helpers.php';
