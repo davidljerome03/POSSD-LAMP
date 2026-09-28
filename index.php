@@ -129,18 +129,37 @@ switch ($method) {
         }
 
         // Search contacts (partial match on FirstName, LastName, Phone, or Email)
-        if ($search !== null && $search !== '') {
-            $like = '%' . $search . '%';
-            $stmt = $db->prepare('
-                SELECT ID, FirstName, LastName, Phone, Email, UserID, DateCreated 
-                FROM Contacts 
-                WHERE UserID = :uid 
-                  AND (FirstName LIKE :q OR LastName LIKE :q OR Phone LIKE :q OR Email LIKE :q)
-                ORDER BY FirstName, LastName
-            ');
-            $stmt->execute([':uid' => $userId, ':q' => $like]);
-            $rows = $stmt->fetchAll();
-            respond(200, ['results' => $rows, 'error' => '']);
+if ($search !== null && $search !== '') {
+    $like = '%' . $search . '%';
+
+    $stmt = $db->prepare('
+        SELECT ID, FirstName, LastName, Phone, Email, UserID, DateCreated
+        FROM Contacts
+        WHERE UserID = :uid
+          AND (
+              FirstName LIKE :q1
+              OR LastName LIKE :q2
+              OR Phone LIKE :q3
+              OR Email LIKE :q4
+          )
+        ORDER BY FirstName, LastName
+    ');
+
+    $stmt->execute([
+        ':uid' => $userId,
+        ':q1' => $like,
+        ':q2' => $like,
+        ':q3' => $like,
+        ':q4' => $like
+    ]);
+
+    $rows = $stmt->fetchAll();
+
+    respond(200, [
+        'results' => $rows,
+        'error' => ''
+    ]);
+}
         }
 
         // List all contacts
