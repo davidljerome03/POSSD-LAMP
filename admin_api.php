@@ -54,7 +54,7 @@ if ($method === 'GET' && $action === 'users') {
         'results' => $stmt->fetchAll(),
         'error' => ''
     ]);
-}
+
 }
 
 if ($method === 'GET' && $action === 'user_contacts') {
