@@ -15,4 +15,9 @@ This project was developed with assistance from generative AI tools:
 - **Scope**: Database troubleshooting, SQL query assistance, and implementation guidance.
 - **Use**: Used ChatGPT to clarify MySQL concepts, troubleshoot SQL errors, and get guidance on user roles, database permissions, and password security.
 
+- **Tool**: ChatGPT
+- **Dates** September 28, 2026
+- **Scope**: Search functionality
+- **Use**: Used chat gpt to help target fix for search functionality 
+
 All AI-generated code was reviewed, tested, and modified to meet assignment requirements. Final implementation reflects my understanding of the concepts.
