@@ -22,22 +22,39 @@ $action = $_GET['action'] ?? '';
 
 if ($method === 'GET' && $action === 'users') {
     $search = isset($_GET['q']) ? trim($_GET['q']) : null;
-    
+
     if ($search !== null && $search !== '') {
         $like = '%' . $search . '%';
+
         $stmt = $db->prepare('
-            SELECT ID, FirstName, LastName, Login, Role, IsDisabled, DateCreated 
-            FROM Users 
-            WHERE FirstName LIKE :q OR LastName LIKE :q OR Login LIKE :q
+            SELECT ID, FirstName, LastName, Login, Role, IsDisabled, DateCreated
+            FROM Users
+            WHERE FirstName LIKE :q1
+               OR LastName LIKE :q2
+               OR Login LIKE :q3
             ORDER BY ID ASC
         ');
-        $stmt->execute([':q' => $like]);
+
+        $stmt->execute([
+            ':q1' => $like,
+            ':q2' => $like,
+            ':q3' => $like
+        ]);
     } else {
-        $stmt = $db->prepare('SELECT ID, FirstName, LastName, Login, Role, IsDisabled, DateCreated FROM Users ORDER BY ID ASC');
+        $stmt = $db->prepare('
+            SELECT ID, FirstName, LastName, Login, Role, IsDisabled, DateCreated
+            FROM Users
+            ORDER BY ID ASC
+        ');
+
         $stmt->execute();
     }
-    
-    respond(200, ['results' => $stmt->fetchAll(), 'error' => '']);
+
+    respond(200, [
+        'results' => $stmt->fetchAll(),
+        'error' => ''
+    ]);
+}
 }
 
 if ($method === 'GET' && $action === 'user_contacts') {
