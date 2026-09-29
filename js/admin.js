@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const roleBadge = user.Role === 'Admin' ? 'badge-admin' : 'badge-user';
             const isDisabled = parseInt(user.IsDisabled) === 1;
-            const statusBadge = isDisabled ? '<span class="badge badge-disabled">Disabled</span>' : '<span class="badge" style="background:#ccff00;color:#000;">Active</span>';
+            const statusBadge = isDisabled ? '<span class="badge badge-disabled">Disabled</span>' : '<span class="badge" style="background:var(--accent-color);color:#000;">Active</span>';
             const actionBtnText = isDisabled ? 'Enable' : 'Disable';
             const actionBtnColor = isDisabled ? 'var(--card-bg)' : 'var(--danger-color)';
             
