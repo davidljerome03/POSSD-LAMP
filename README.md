@@ -1,5 +1,4 @@
 # POSSD-LAMP: Contact Manager
-Group 41's POSSD LAMP Repo
 
 ## Project Overview
 This is a full CRUD (Create, Read, Update, Delete) web application built using the LAMP stack (Linux, Apache, MySQL, PHP). The application serves as a secure personal contacts manager where users can register, log in, and manage their address books. 
