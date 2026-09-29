@@ -159,10 +159,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (res.results && res.results.length > 0) {
                     res.results.forEach(c => {
                         const row = document.createElement('tr');
+                        const p = escapeHTML(c.Phone || '');
+                        const e = escapeHTML(c.Email || '');
+                        const phoneHtml = p ? `<a href="tel:${p}" style="color:var(--text-main); text-decoration:underline;">${p}</a>` : 'N/A';
+                        const emailHtml = e ? `<a href="mailto:${e}" style="color:var(--text-main); text-decoration:underline;">${e}</a>` : 'N/A';
+                        
                         row.innerHTML = `
                             <td>${escapeHTML(c.FirstName + ' ' + c.LastName)}</td>
-                            <td>${escapeHTML(c.Phone || 'N/A')}</td>
-                            <td>${escapeHTML(c.Email || 'N/A')}</td>
+                            <td>${phoneHtml}</td>
+                            <td>${emailHtml}</td>
                         `;
                         userContactsTbody.appendChild(row);
                     });

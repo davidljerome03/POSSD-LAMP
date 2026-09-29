@@ -1,5 +1,18 @@
-# POSSD-LAMP
+# POSSD-LAMP: Contact Manager
 Group 41's POSSD LAMP Repo
+
+## Project Overview
+This is a full CRUD (Create, Read, Update, Delete) web application built using the LAMP stack (Linux, Apache, MySQL, PHP). The application serves as a secure personal contacts manager where users can register, log in, and manage their address books. 
+
+## Key Features
+- **Role-Based Access**: Features two distinct user roles (User and Admin) with separate dashboards.
+- **Secure Authentication**: User registration and login system with securely hashed passwords.
+- **Contact Management**: Users can create, search, edit, and delete their own personal contact entries.
+- **Quick Links**: Contact phone numbers and emails are rendered as quick-action links (`tel:` and `mailto:`) to instantly open device dialers or mail clients.
+- **Admin Dashboard**: A dedicated interface allowing administrators to view all registered users, inspect individual users' contacts, disable/enable disruptive accounts, reset user passwords, and provision new administrative accounts.
+- **Modern UI**: Features a unique, responsive Neo-Brutalist design aesthetic with a built-in Light/Dark mode toggle for accessibility.
+
+---
 
 ## AI Assistance Disclosure
 
